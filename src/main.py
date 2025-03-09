@@ -1,16 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
-"""
-@author: Arnaud Villeneuve
-
-This file contains the main program to run the Spotmicro Controller
-
-"""
- 
-
-from time import sleep, time
-from math import pi, sin, cos, atan, atan2, sqrt
+from time import sleep
+from math import pi, sin, cos, atan2, sqrt
 import numpy as np
 
 import pygame
@@ -18,14 +8,19 @@ pygame.init()
 screen = pygame.display.set_mode((600, 600)) 
 pygame.display.set_caption("SPOTMICRO")
 
+import config.puntos_torso as torso
+import config.dimensiones as medida
+from utils.cinematica import IK, FK
+from utils.operador import xyz_rotation_matrix, new_coordinates
+from motion.caminar import start_walk_stop
+from motion.move import moving
 
-import motion.Spotmicro_Inverse_Kinematics_and_Position_Library_v01 as Spotmicro_Inverse_Kinematics_and_Position_Library_v01
-Spot = Spotmicro_Inverse_Kinematics_and_Position_Library_v01.Spot()
-import utils.Spotmicro_Gravity_Center_Library_v01 as Spotmicro_Gravity_Center_Library_v01
-SpotCG = Spotmicro_Gravity_Center_Library_v01.SpotCG()
-import animation.Spotmicro_Animation_Library_v01 as Spotmicro_Animation_Library_v01
-SpotAnim = Spotmicro_Animation_Library_v01.SpotAnim()
 
+import centro_gravedad.centro_g as centro
+import animation.animation as animacion
+
+centro_gravedad = centro.SpotCG()
+anime = animacion.SpotAnime()
 
 """ Walking parameters """
 b_height = 200
@@ -113,8 +108,8 @@ joypal = -1 # Initial joysick value for pawing left
 
 Tcomp = 0.02
 
-x_spot = [0, x_offset, Spot.xlf, Spot.xrf, Spot.xrr, Spot.xlr,0,0,0]
-y_spot = [0,0,Spot.ylf+track, Spot.yrf-track, Spot.yrr-track, Spot.ylr+track,0,0,0]
+x_spot = [0, x_offset, torso.xlf, torso.xrf, torso.xrr, torso.xlr,0,0,0]
+y_spot = [0,0,torso.ylf+track, torso.yrf-track, torso.yrr-track, torso.ylr+track,0,0,0]
 z_spot = [0,b_height,0,0,0,0,0,0,0]
 theta_spot = [0,0,0,0,0,0]
 
@@ -125,19 +120,19 @@ stance = [True, True, True, True] # True = foot on the ground, False = Foot lift
 #theta xyz of ground then theta xyz of frame/body
 pos_init = [-x_offset,track,-b_height,-x_offset,-track,-b_height,-x_offset,-track,-b_height,-x_offset,track,-b_height]
 
-thetalf = Spot.IK(Spot.L0, Spot.L1, Spot.L2, Spot.d, pos_init[0], pos_init[1], pos_init[2], 1)[0]
-thetarf = Spot.IK(Spot.L0, Spot.L1, Spot.L2, Spot.d, pos_init[3], pos_init[4], pos_init[5], -1)[0]
-thetarr = Spot.IK(Spot.L0, Spot.L1, Spot.L2, Spot.d, pos_init[6], pos_init[7], pos_init[8], -1)[0]
-thetalr = Spot.IK(Spot.L0, Spot.L1, Spot.L2, Spot.d, pos_init[9], pos_init[10], pos_init[11], 1)[0]
+thetarf = IK(medida.L0, medida.L1, medida.L2, medida.d, pos_init[3], pos_init[4], pos_init[5], -1)[0]
+thetarr = IK(medida.L0, medida.L1, medida.L2, medida.d, pos_init[6], pos_init[7], pos_init[8], -1)[0]
+thetalr = IK(medida.L0, medida.L1, medida.L2, medida.d, pos_init[9], pos_init[10], pos_init[11], 1)[0]
+thetalf = IK(medida.L0, medida.L1, medida.L2, medida.d, pos_init[0], pos_init[1], pos_init[2], 1)[0]
 
-CG = SpotCG.CG_calculation (thetalf,thetarf,thetarr,thetalr)
+CG = centro_gravedad.CG_calculation (thetalf,thetarf,thetarr,thetalr)
 #Calculation of CG absolute position
-M = Spot.xyz_rotation_matrix(theta_spot[0],theta_spot[1],theta_spot[2],False)
-CGabs = Spot.new_coordinates(M,CG[0],CG[1],CG[2],x_spot[1],y_spot[1],z_spot[1])
-dCG = SpotCG.CG_distance(x_spot[2:6],y_spot[2:6],z_spot[2:6],CGabs[0],CGabs[1],stance)
+M = xyz_rotation_matrix(theta_spot[0],theta_spot[1],theta_spot[2],False)
+CGabs = new_coordinates(M,CG[0],CG[1],CG[2],x_spot[1],y_spot[1],z_spot[1])
+dCG = centro_gravedad.CG_distance(x_spot[2:6],y_spot[2:6],z_spot[2:6],CGabs[0],CGabs[1],stance)
 
-x_spot = [0, x_offset, Spot.xlf, Spot.xrf, Spot.xrr, Spot.xlr,CG[0],CGabs[0],dCG[1]]
-y_spot = [0,0,Spot.ylf+track, Spot.yrf-track, Spot.yrr-track, Spot.ylr+track,CG[1],CGabs[1],dCG[2]]
+x_spot = [0, x_offset, torso.xlf, torso.xrf, torso.xrr, torso.xlr,CG[0],CGabs[0],dCG[1]]
+y_spot = [0,0,torso.ylf+track, torso.yrf-track, torso.yrr-track, torso.ylr+track,CG[1],CGabs[1],dCG[2]]
 z_spot = [0,b_height,0,0,0,0,CG[2],CGabs[2],dCG[3]]
 
 pos = [-x_offset,track,-b_height,-x_offset,-track,-b_height,-x_offset,-track,-b_height,-x_offset,track,-b_height,theta_spot,x_spot,y_spot,z_spot]
@@ -330,12 +325,12 @@ while (continuer):
             theta_spot[1] = Angle [1] # angle around y axis
                         
             if (t< tstart):           
-                pos = Spot.start_walk_stop (track,x_offset,steering,walking_direction,cw,walking_speed,v_amp,b_height,stepl,t,tstep,theta_spot,x_spot,y_spot,z_spot,'start')
+                pos = start_walk_stop (track,x_offset,steering,walking_direction,cw,walking_speed,v_amp,b_height,stepl,t,tstep,theta_spot,x_spot,y_spot,z_spot,'start')
             else:
                 if (t<tstop):
-                    pos = Spot.start_walk_stop (track,x_offset,steering,walking_direction,cw,walking_speed,v_amp,b_height,stepl,t,tstep,theta_spot,x_spot,y_spot,z_spot,'walk')
+                    pos = start_walk_stop (track,x_offset,steering,walking_direction,cw,walking_speed,v_amp,b_height,stepl,t,tstep,theta_spot,x_spot,y_spot,z_spot,'walk')
                 else:
-                    pos = Spot.start_walk_stop (track,x_offset,steering,walking_direction,cw,walking_speed,v_amp,b_height,stepl,t,tstep,theta_spot,x_spot,y_spot,z_spot,'stop')    
+                    pos = start_walk_stop (track,x_offset,steering,walking_direction,cw,walking_speed,v_amp,b_height,stepl,t,tstep,theta_spot,x_spot,y_spot,z_spot,'stop')    
                            
             theta_spot = pos[12]
             x_spot = pos[13]
@@ -353,13 +348,13 @@ while (continuer):
             alpha_pawing = 0/180*pi
             L_paw = 220
             
-            x_end_sitting = Spot.xlr-Spot.L2 + Spot.L1*cos(pi/3) +Spot.Lb/2*cos(-alpha_sitting) - Spot.d*sin (-alpha_sitting)
-            z_end_sitting = Spot.L1*sin(pi/3)+ Spot.Lb/2*sin(-alpha_sitting) + Spot.d*cos(-alpha_sitting)
+            x_end_sitting = torso.xlr - medida.L2 + medida.L1*cos(pi/3) + medida.Lb/2*cos(-alpha_sitting) - medida.d*sin (-alpha_sitting)
+            z_end_sitting = medida.L1*sin(pi/3)+ medida.Lb/2*sin(-alpha_sitting) + medida.d*cos(-alpha_sitting)
             start_frame_pos = [0,0,0,x_offset,0,b_height] # x,y,z rotations then translations
 
             #end_frame_pos = [0,0,0,x_offset,0,b_height-20] # x,y,z rotations then translations
             end_frame_pos = [0,alpha_sitting,0, x_end_sitting,0,z_end_sitting] # x,y,z rotations then translations
-            pos = Spot.moving (t, start_frame_pos,end_frame_pos, pos)
+            pos = moving (t, start_frame_pos,end_frame_pos, pos)
             
             if (t==1)&(pawing == False):
                 pos_sit_init = pos
@@ -368,21 +363,21 @@ while (continuer):
                 if (pawing == True):
                     #print (pos_sit_init[3],pos_sit_init[5])
                     pos[3] = pos_sit_init[3]+ (L_paw*cos(alpha_pawing)-pos_sit_init[3])*(joypar+1)/2
-                    pos[5] = pos_sit_init[5]+ (-Spot.d-L_paw*sin(alpha_pawing)-pos_sit_init[5])*(joypar+1)/2
+                    pos[5] = pos_sit_init[5]+ (-medida.d-L_paw*sin(alpha_pawing)-pos_sit_init[5])*(joypar+1)/2
                     
                     pos[0] = pos_sit_init[0]+ (L_paw*cos(alpha_pawing)-pos_sit_init[0])*(joypal+1)/2
-                    pos[2] = pos_sit_init[2]+ (-Spot.d-L_paw*sin(alpha_pawing)-pos_sit_init[2])*(joypal+1)/2
+                    pos[2] = pos_sit_init[2]+ (-medida.d-L_paw*sin(alpha_pawing)-pos_sit_init[2])*(joypal+1)/2
                     
-                    thetarf = Spot.IK(Spot.L0, Spot.L1, Spot.L2, Spot.d, pos[3], pos[4], pos[5], -1)[0]
-                    thetalf = Spot.IK(Spot.L0, Spot.L1, Spot.L2, Spot.d, pos[0], pos[1], pos[2], -1)[0]
+                    thetarf = IK(medida.L0, medida.L1, medida.L2, medida.d, pos[3], pos[4], pos[5], -1)[0]
+                    thetalf = IK(medida.L0, medida.L1, medida.L2, medida.d, pos[0], pos[1], pos[2], -1)[0]
                     #update of right front leg absolute position
-                    legrf = Spot.FK(thetarf,-1) 
-                    leglf = Spot.FK(thetalf,-1) 
-                    xlegrf =Spot.xrf+pos[3]
-                    ylegrf =Spot.yrf+pos[4]
+                    legrf = FK(thetarf,-1) 
+                    leglf = FK(thetalf,-1) 
+                    xlegrf = torso.xrf+pos[3]
+                    ylegrf = torso.yrf+pos[4]
                     zlegrf =pos[5]
-                    xleglf =Spot.xlf+pos[0]
-                    yleglf =Spot.ylf+pos[1]
+                    xleglf = torso.xlf+pos[0]
+                    yleglf = torso.ylf+pos[1]
                     zleglf =pos[2]
                     
                     theta_spot_sit = pos[12]
@@ -391,10 +386,10 @@ while (continuer):
                     y_spot_sit = pos[14]
                     z_spot_sit = pos[15]
                     
-                    M = Spot.xyz_rotation_matrix(theta_spot_sit[3],theta_spot_sit[4],theta_spot_sit[2]+theta_spot_sit[5],False)
+                    M = xyz_rotation_matrix(theta_spot_sit[3],theta_spot_sit[4],theta_spot_sit[2]+theta_spot_sit[5],False)
                     
-                    paw_rf = Spot.new_coordinates(M,xlegrf,ylegrf,zlegrf,x_spot_sit[1],y_spot_sit[1],z_spot_sit[1])
-                    paw_lf = Spot.new_coordinates(M,xleglf,yleglf,zleglf,x_spot_sit[1],y_spot_sit[1],z_spot_sit[1])
+                    paw_rf = new_coordinates(M,xlegrf,ylegrf,zlegrf,x_spot_sit[1],y_spot_sit[1],z_spot_sit[1])
+                    paw_lf = new_coordinates(M,xleglf,yleglf,zleglf,x_spot_sit[1],y_spot_sit[1],z_spot_sit[1])
                     
                     x_spot_sit[3] = paw_rf[0]
                     y_spot_sit[3] = paw_rf[1]
@@ -447,7 +442,7 @@ while (continuer):
             y_end_shifting = -ra_lat
             start_frame_pos = [0,0,0,x_offset,0,b_height] # x,y,z rotations then translations
             end_frame_pos = [0,0,0, x_end_shifting+x_offset,y_end_shifting,b_height] # x,y,z rotations then translations
-            pos = Spot.moving (t, start_frame_pos,end_frame_pos, pos)
+            pos = moving (t, start_frame_pos,end_frame_pos, pos)
             
             if (t==1)&(peeing == False):
                 pos_shift_init = pos
@@ -459,18 +454,18 @@ while (continuer):
                     pos[10] = pos_shift_init[10]+ (130-pos_shift_init[10])*(joype+1)/2
                     pos[11] = pos_shift_init[11]+ (-20-pos_shift_init[11])*(joype+1)/2
                     
-                    thetalr = Spot.IK(Spot.L0, Spot.L1, Spot.L2, Spot.d, pos[9], pos[10], pos[11], 1)[0]
+                    thetalr = IK(medida.L0, medida.L1, medida.L2, medida.d, pos[9], pos[10], pos[11], 1)[0]
                     #update of left hind leg absolute position
-                    leglr = Spot.FK(thetalr,1)                    
-                    xleglr =Spot.xlr+pos[9]
-                    yleglr =Spot.ylr+pos[10]
+                    leglr = FK(thetalr,1)                    
+                    xleglr = torso.xlr+pos[9]
+                    yleglr = torso.ylr+pos[10]
                     zleglr =pos[11]
                     theta_spot_shift = pos[12]
                     x_spot_shift = pos[13]
                     y_spot_shift = pos[14]
                     z_spot_shift = pos[15]
-                    M = Spot.xyz_rotation_matrix(theta_spot_shift[3],theta_spot_shift[4],theta_spot_shift[2]+theta_spot_shift[5],False)
-                    pee_lr = Spot.new_coordinates(M,xleglr,yleglr,zleglr,x_spot_shift[1],y_spot_shift[1],z_spot_shift[1])
+                    M = xyz_rotation_matrix(theta_spot_shift[3],theta_spot_shift[4],theta_spot_shift[2]+theta_spot_shift[5],False)
+                    pee_lr = new_coordinates(M,xleglr,yleglr,zleglr,x_spot_shift[1],y_spot_shift[1],z_spot_shift[1])
                     
                     x_spot_shift[5] = pee_lr[0]
                     y_spot_shift[5] = pee_lr[1]
@@ -506,11 +501,11 @@ while (continuer):
         
         if (lying == True):
             angle_lying = 40/180*pi
-            x_end_lying= Spot.xlr-Spot.L2 + Spot.L1*cos(angle_lying)+Spot.Lb/2
-            z_end_lying = Spot.L1*sin(angle_lying)+Spot.d
+            x_end_lying= torso.xlr - medida.L2 + medida.L1*cos(angle_lying) + medida.Lb/2
+            z_end_lying = medida.L1*sin(angle_lying) + medida.d
             start_frame_pos = [0,0,0,x_offset,0,b_height] # x,y,z rotations then translations
             end_frame_pos = [0,0,0, x_end_lying,0,z_end_lying] # x,y,z rotations then translations
-            pos = Spot.moving (t, start_frame_pos,end_frame_pos, pos)
+            pos = moving (t, start_frame_pos,end_frame_pos, pos)
             if (stop == False):
                 t=t+3*tstep
                 if (t>=1):
@@ -537,16 +532,16 @@ while (continuer):
                 
             if (t<0.25):
                 end_frame_pos = [x_angle_twisting,y_angle_twisting,z_angle_twisting, x_offset,0,b_height] # x,y,z rotations then translations
-                pos = Spot.moving (t*4, start_frame_pos,end_frame_pos, pos)                
+                pos = moving (t*4, start_frame_pos,end_frame_pos, pos)                
             if (t>=0.25)&(t<0.5):
                 end_frame_pos = [x_angle_twisting,y_angle_twisting,z_angle_twisting, x_offset,0,b_height] # x,y,z rotations then translations
-                pos = Spot.moving ((t-0.25)*4, end_frame_pos,start_frame_pos, pos)  
+                pos = moving ((t-0.25)*4, end_frame_pos,start_frame_pos, pos)  
             if (t>=0.5)&(t<0.75):
                 end_frame_pos = [-x_angle_twisting,-y_angle_twisting,-z_angle_twisting, x_offset,0,b_height]
-                pos = Spot.moving ((t-0.5)*4, start_frame_pos,end_frame_pos, pos) 
+                pos = moving ((t-0.5)*4, start_frame_pos,end_frame_pos, pos) 
             if (t>=0.75)&(t<=1):
                 end_frame_pos = [-x_angle_twisting,-y_angle_twisting,-z_angle_twisting, x_offset,0,b_height]
-                pos = Spot.moving ((t-0.75)*4, end_frame_pos,start_frame_pos, pos)     
+                pos = moving ((t-0.75)*4, end_frame_pos,start_frame_pos, pos)     
              
             
         xc = steering* cos(walking_direction)
@@ -557,10 +552,10 @@ while (continuer):
 
 
         
-        thetalf = Spot.IK(Spot.L0, Spot.L1, Spot.L2, Spot.d, pos[0], pos[1], pos[2], 1)[0]
-        thetarf = Spot.IK(Spot.L0, Spot.L1, Spot.L2, Spot.d, pos[3], pos[4], pos[5], -1)[0]
-        thetarr = Spot.IK(Spot.L0, Spot.L1, Spot.L2, Spot.d, pos[6], pos[7], pos[8], -1)[0]
-        thetalr = Spot.IK(Spot.L0, Spot.L1, Spot.L2, Spot.d, pos[9], pos[10], pos[11], 1)[0]
+        thetarf = IK(medida.L0, medida.L1, medida.L2, medida.d, pos[3], pos[4], pos[5], -1)[0]
+        thetarr = IK(medida.L0, medida.L1, medida.L2, medida.d, pos[6], pos[7], pos[8], -1)[0]
+        thetalf = IK(medida.L0, medida.L1, medida.L2, medida.d, pos[0], pos[1], pos[2], 1)[0]
+        thetalr = IK(medida.L0, medida.L1, medida.L2, medida.d, pos[9], pos[10], pos[11], 1)[0]
         
         """
         ************************************************************************************************
@@ -591,7 +586,7 @@ while (continuer):
             stance[3] = True
         
         
-        SpotAnim.animate(pos,t,pi/12,-135/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,walking_speed,walking_direction,steering,stance)
+        anime.animate(pos,t,pi/12,-135/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,walking_speed,walking_direction,steering,stance)
         #SpotAnim.animate(pos,t,pi/2,-0/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,walking_speed,walking_direction,steering,stance)
         #SpotAnim.animate(pos,t,0,-0/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,walking_speed,walking_direction,steering,stance)
 
@@ -600,11 +595,11 @@ while (continuer):
             sleep(0.1)
         
         """ CG update """
-        CG = SpotCG.CG_calculation (thetalf,thetarf,thetarr,thetalr)
+        CG = centro_gravedad.CG_calculation (thetalf,thetarf,thetarr,thetalr)
         #Calculation of CG absolute position
-        M = Spot.xyz_rotation_matrix(theta_spot[0],theta_spot[1],theta_spot[2],False)
-        CGabs = Spot.new_coordinates(M,CG[0],CG[1],CG[2],x_spot[1],y_spot[1],z_spot[1])
-        dCG = SpotCG.CG_distance(x_spot[2:6],y_spot[2:6],z_spot[2:6],CGabs[0],CGabs[1],stance)
+        M = xyz_rotation_matrix(theta_spot[0],theta_spot[1],theta_spot[2],False)
+        CGabs = new_coordinates(M,CG[0],CG[1],CG[2],x_spot[1],y_spot[1],z_spot[1])
+        dCG = centro_gravedad.CG_distance(x_spot[2:6],y_spot[2:6],z_spot[2:6],CGabs[0],CGabs[1],stance)
         
         
         pos[13][6] = CG[0] #x

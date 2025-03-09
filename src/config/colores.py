@@ -1,0 +1,13 @@
+"""Display colors """
+BLACK = (0,   0,   0)
+WHITE = (255, 255, 255)
+BLUE =  (24,  84, 231)
+GREEN = (51, 204, 51)
+RED =   (255,   0,   0)
+GREY =  (225, 225, 225)
+DARK_GREY=(100,100,100)
+DARK_RED =(176,0,0)
+VIOLET =(207,175,255)
+CYAN = (0,255,255)
+DARK_CYAN =(0,127,127)
+MED_GREY = (170,170,170)
