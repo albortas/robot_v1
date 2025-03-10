@@ -1,6 +1,3 @@
-#añadiendo el directorio de trabajo a PYTHONPATH
-import sys, os
-sys.path.append(os.getcwd())
 import numpy as np
 from math import pi, sin, cos, atan2, sqrt
 

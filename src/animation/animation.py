@@ -1,6 +1,3 @@
-import sys, os
-sys.path.append(os.getcwd())
-
 from math import pi, sin, cos
 import numpy as np
 import pygame

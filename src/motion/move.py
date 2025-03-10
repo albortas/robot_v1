@@ -1,11 +1,6 @@
-#configurar path
-import sys, os
 import numpy as np
-sys.path.append(os.getcwd())
-
-#Importar librerias propias
 from src.utils.operador import xyz_rotation_matrix, new_coordinates
-from config.puntos_torso import *
+from src.config.puntos_torso import *
 
 """"
 Moving Function from known start and end positions (used for sitting, lying, etc...)

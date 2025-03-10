@@ -1,7 +1,3 @@
-
-import sys, os
-sys.path.append(os.getcwd())
-
 from math import cos, sin
 from src.config.inercia import *
 from src.config.dimensiones import d, L0, L1

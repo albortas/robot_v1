@@ -1,6 +1,3 @@
-import sys,os
-sys.path.append(os.getcwd())
-
 from math import sqrt
 from src.utils.cinematica_cg import FK_Weight
 from src.config.inercia import Weight_Body, Weight_Shoulder, Weight_Leg, Weight_Foreleg, xCG_Body, yCG_Body, zCG_Body

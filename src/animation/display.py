@@ -1,7 +1,4 @@
-import sys,os
-sys.path.append(os.getcwd())
 import numpy as np
-
 from src.utils.operador import xyz_rotation_matrix, new_coordinates
 
 conv = 0

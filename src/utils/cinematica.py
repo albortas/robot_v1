@@ -1,7 +1,3 @@
-
-import sys, os
-sys.path.append(os.getcwd())
-
 from math import pi, sin, asin, cos, acos, sqrt
 from src.config.dimensiones import d, L0, L1
 
