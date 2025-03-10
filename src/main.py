@@ -1,4 +1,4 @@
-
+import sys
 from time import sleep
 from math import pi, sin, cos, atan2, sqrt
 import numpy as np
@@ -141,6 +141,8 @@ pos = [-x_offset,track,-b_height,-x_offset,-track,-b_height,-x_offset,-track,-b_
 """
 Main Loop
 """
+
+
 while (continuer):
         clock.tick(50)     
         

@@ -1,0 +1,22 @@
+[project]
+name = "robot"
+version = "0.1.0"
+description = "Robot cuadrúpedo con simulador en Pygame"
+authors = [{name="albortas", email= "garlad628@gmail.com>"}]
+license = {text = "MIT"}
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.13"  # Limita a Python 3.12.x (más seguro para compatibilidad)
+numpy = "^2.2.3"         # ^ = compatible releases (2.2.3 <= versión < 3.0.0)
+pygame = "^2.6.1"
+
+[tool.poetry]
+packages = [
+    { include = "src" },
+    { include = "utils", from = "src" },
+    { include = "test", from = "src" }
+]
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
