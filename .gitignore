@@ -1,4 +1,4 @@
-#ignora todos los archivos del directorio venv
-venv/
 #ignora el directorio __pycache__
 __pycache__/
+#ignora todos los archivos del directorio venv
+venv/
