@@ -1,4 +1,3 @@
-import sys
 from time import sleep
 from math import pi, sin, cos, atan2, sqrt
 import numpy as np
