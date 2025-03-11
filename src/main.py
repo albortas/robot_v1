@@ -9,6 +9,7 @@ pygame.display.set_caption("SPOTMICRO")
 
 import config.puntos_torso as torso
 import config.dimensiones as medida
+from config.parametros_caminar import *
 from utils.cinematica import IK, FK
 from utils.operador import xyz_rotation_matrix, new_coordinates
 from motion.caminar import start_walk_stop
@@ -21,23 +22,7 @@ import animation.animation as animacion
 centro_gravedad = centro.SpotCG()
 anime = animacion.SpotAnime()
 
-""" Walking parameters """
-b_height = 200
-h_amp = 100# horizontal step length
-v_amp = 40 #vertical step length
-track = 58.09
-x_offset = 0 #body offset in x direction 
-ra_longi = 30# body distance 
-ra_lat = 30#20
-steering =200 #Initial steering radius (arbitrary)
-walking_direction = 90/180*pi #Initial steering angle (arbitrary)
-stepl = 0.125 #duration of leg lifting typically between 0.1 and 0.2
 
-Angle = [0, 0]
-
-center_x = steering*cos(walking_direction) #steering center x relative to body center 
-center_y = steering*sin(walking_direction) #steering center y relative to body center
-cw =1
 
 """ Joystick Init """
 
@@ -110,9 +95,7 @@ Tcomp = 0.02
 x_spot = [0, x_offset, torso.xlf, torso.xrf, torso.xrr, torso.xlr,0,0,0]
 y_spot = [0,0,torso.ylf+track, torso.yrf-track, torso.yrr-track, torso.ylr+track,0,0,0]
 z_spot = [0,b_height,0,0,0,0,0,0,0]
-theta_spot = [0,0,0,0,0,0]
 
-"""theta_spot = [x angle ground, y angle ground, z angle body in space, x angle body, y angle body, z angle body] """
 
 stance = [True, True, True, True] # True = foot on the ground, False = Foot lifted
 

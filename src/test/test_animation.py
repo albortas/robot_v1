@@ -12,6 +12,8 @@ dt = 0
 
 player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
+theta_spot, thetax, thetaz, x_spot, y_spot, z_spot = 0, 0, 0, 0, 0, 0
+
 def teclado(dt):
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
@@ -39,7 +41,7 @@ while running:
 
     #player_pos.x, player_pos.y = teclado(dt)
     
-    anime.draw_floor_grid()
+    anime.draw_floor_grid(theta_spot, thetax, thetaz, x_spot, y_spot, z_spot)
 
     # voltea() la pantalla para poner tu trabajo en la pantalla
     pygame.display.flip()
