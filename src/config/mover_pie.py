@@ -1,4 +1,4 @@
-seq = [0, 0.5, 0.25, 0.75] # secuencia de movimiento de las patas
+seq = [0, 0.5, 0.25, 0.75] # secuencia de tiempos para los pies
 track = 0.3  # Separación entre patas
 h_amp = 0.1  # Amplitud horizontal del movimiento
 v_amp = 0.05  # Amplitud vertical del movimiento
