@@ -24,7 +24,7 @@ from config.dimensiones import L1, L2, Lb, d
 from utils.operador import xyz_rotation_matrix, new_coordinates
 from motion.move import moving
 from utils.cinematica import IK, FK
-from src.motion.caminar import start_walk_stop
+from src.motion.ActualizarPosicion import ActualizarPosicion
 
 from centro_gravedad.centro_g import SpotCG
 SpotCG = SpotCG()
@@ -335,12 +335,16 @@ while (continuer):
             theta_spot[1] = Angle [1] # angle around y axis
                         
             if (t< tstart):           
-                pos = start_walk_stop(x_offset,steering,walking_direction,cw,walking_speed,t,tstep,theta_spot,x_spot,y_spot,z_spot,'start')
+                caminar = ActualizarPosicion(x_offset,steering,walking_direction,cw,walking_speed,t,tstep,theta_spot,x_spot,y_spot,z_spot,'start')
+                pos = caminar.actualizar_posicion()
             else:
                 if (t<tstop):
-                    pos = start_walk_stop(x_offset,steering,walking_direction,cw,walking_speed,t,tstep,theta_spot,x_spot,y_spot,z_spot,'walk')
+                    caminar = ActualizarPosicion(x_offset,steering,walking_direction,cw,walking_speed,t,tstep,theta_spot,x_spot,y_spot,z_spot,'walk')
+                    pos = caminar.actualizar_posicion()                    
                 else:
-                    pos = start_walk_stop(x_offset,steering,walking_direction,cw,walking_speed,t,tstep,theta_spot,x_spot,y_spot,z_spot,'stop')    
+                    caminar = ActualizarPosicion(x_offset,steering,walking_direction,cw,walking_speed,t,tstep,theta_spot,x_spot,y_spot,z_spot,'stop')
+                    pos = caminar.actualizar_posicion()
+                        
                            
             theta_spot = pos[12]
             x_spot = pos[13]

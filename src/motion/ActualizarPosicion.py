@@ -5,8 +5,8 @@ from src.config.parametros_caminar import b_height, seq, stepl
 from src.utils.operador import xyz_rotation_matrix, new_coordinates
 from .ControlFase import ControlFase
 class ActualizarPosicion():
-    def __init__(self, x_offset, dir_radio, dir_angulo, step_phase, tstep, cw, h_amp, t, theta_spot, x_spot, y_spot, z_spot):
-        self.control = ControlFase(dir_radio,dir_angulo, step_phase, tstep, cw, h_amp, t, x_spot, y_spot)
+    def __init__(self, x_offset, steering, walking_direction, cw, h_amp,t, tstep, theta_spot, x_spot, y_spot, z_spot, step_phase):
+        self.control = ControlFase(steering, walking_direction, step_phase, tstep, cw, h_amp, t, x_spot, y_spot)
         self.theta_spot_updated = theta_spot
         self.tstep = tstep
         self.x_offset = x_offset
