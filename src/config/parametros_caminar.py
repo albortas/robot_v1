@@ -10,6 +10,8 @@ ra_lat = 30#20
 steering =200 #Initial steering radius (arbitrary)
 walking_direction = 90/180*pi #Initial steering angle (arbitrary)
 stepl = 0.125 #duration of leg lifting typically between 0.1 and 0.2
+seq = [0, 0.5, 0.25, 0.75] # secuencia de tiempos para los pies
+
 
 Angle = [0, 0]
 
