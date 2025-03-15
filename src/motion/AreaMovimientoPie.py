@@ -19,8 +19,8 @@ class AreaMovimientoPie:
     """Posicion Nominal Pie
     """
     def posicion_nominal_pie(self):
-        xn = [xlf, xrf, xrr, xlr]
-        yn = [ylf + L0, yrf - L0, yrr-L0, ylr+L0]
+        xn = np.array([xlf, xrf, xrr, xlr])
+        yn = np.array([ylf + L0, yrf - L0, yrr-L0, ylr+L0])
         return xn, yn
 
     """Direccion del radio y el angulo nominal al pie desde el centro del robot
@@ -30,10 +30,9 @@ class AreaMovimientoPie:
         xn, yn = self.posicion_nominal_pie()
         radii = np.zeros(4)
         an = np.zeros(4)
-        for i in range (0,4): 
-            """ Direccion del Radio"""
-            """ Ecuacion de la circunferencia que se aplica en el plano xy""" 
-            radii[i] = sqrt((xc-xn[i])**2+(yc-yn[i])**2)
-            """ Angulo Nominal al pie"""  
-            an[i] = atan2(yn[i]-yc,xn[i]-xc) 
+        """ Direccion del Radio"""
+        """ Ecuacion de la circunferencia que se aplica en el plano xy""" 
+        radii = np.sqrt((xc-xn)**2+(yc-yn)**2)
+        """ Angulo Nominal al pie"""  
+        an = np.atan2(yn-yc,xn-xc) 
         return radii, an      

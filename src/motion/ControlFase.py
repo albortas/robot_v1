@@ -1,6 +1,7 @@
 from math import pi
+import numpy as np
 from src.config.parametros_caminar import stepl, seq, v_amp
-from .AreaMovimientoPie import AreaMovimientoPie
+from src.motion.AreaMovimientoPie import AreaMovimientoPie
 
 
 class ControlFase:
@@ -30,8 +31,8 @@ class ControlFase:
         return dtheta
     
     def control_fase(self):
-        alpha = [0] *4
-        alphav = [0] *4
+        alpha = np.zeros(4)
+        alphav = np.zeros(4)
         
         for i in range (0,4):
             alphav[i] =0 

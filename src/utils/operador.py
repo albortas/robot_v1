@@ -1,7 +1,6 @@
 import numpy as np
-from math import sin, cos
 
-def xyz_rotation_matrix(thetax, thetay, thetaz, inverse):
+def xyz_rotation_matrix(thetax, thetay, thetaz, inverse = False):
     cx, sx = np.cos(thetax), np.sin(thetax)
     cy, sy = np.cos(thetay), np.sin(thetay)
     cz, sz = np.cos(thetaz), np.sin(thetaz)
@@ -21,73 +20,6 @@ def xyz_rotation_matrix(thetax, thetay, thetaz, inverse):
             [-sy, sx * cy, cx * cy]
         ])
     return M
-
-def new_coordinates(M, x, y, z, x0, y0, z0):
-    point = np.array([x, y, z])
-    offset = np.array([x0, y0, z0])
-    transformed_point = M @ point  + offset
-    return transformed_point.tolist()
-
-def new_coordinates_vec(rotation_matrix, x_array, y_array, z_array, dx=0, dy=0, dz=0):
-    """
-    Transforma múltiples puntos usando una matriz de rotación y una traslación.
-    """
-    # Apilar coordenadas en una matriz (3, n)
-    points = np.stack([x_array, y_array, z_array])
-    
-    # Aplicar rotación: (3x3) @ (3xn) -> (3xn)
-    rotated = np.dot(rotation_matrix, points)
-    
-    # Aplicar traslación (broadcasting automático)
-    translated = rotated + np.array([[dx], [dy], [dz]])
-    
-    # Devolver como tres arrays separados
-    return translated[0, :], translated[1, :], translated[2, :]
-
-def rotx(alpha):
-    """
-    Create a 3x3 rotation matrix about the x axis
-    """
-    rx = np.array([[1, 0,          0,         ],
-                   [0, cos(alpha), -sin(alpha)],
-                   [0, sin(alpha), cos(alpha) ]])
-
-    return rx
-
-
-def roty(beta):
-    """
-    Create a 3x3 rotation matrix about the y axis
-    """
-    ry = np.array([[cos(beta),   0, sin(beta)],
-                   [0,           1, 0        ],
-                   [-sin(beta),  0, cos(beta)]])
-
-    return ry
-
-
-def rotz(gamma):
-    """
-    Create a 3x3 rotation matrix about the z axis
-    """
-    rz = np.array([[cos(gamma), -sin(gamma), 0],
-                   [sin(gamma), cos(gamma),  0],
-                   [0,          0,           1]])
-
-    return rz
-
-
-def rotxyz(alpha, beta, gamma, inversa):
-    """
-    Create a 3x3 rotation matrix about the x,y,z axes
-    """
-    #Rzyx = Rx * Ry * Rz
-    if inversa:
-        return rotx(alpha).dot(roty(beta)).dot(rotz(gamma))
-    #Rxyz = Rz * Ry * Rx
-    else:
-        return rotz(gamma) @ roty(beta) @ rotx(alpha)
-
 
 def homog_transxyz(dx, dy, dz):
     """
@@ -112,12 +44,9 @@ def homog_transform(alpha,beta,gamma,inversa,dx,dy,dz):
     """    
       
     rot4x4 = np.eye(4)
-    rot4x4[:3,:3] = rotxyz(alpha,beta,gamma,inversa)
+    rot4x4[:3,:3] = xyz_rotation_matrix(alpha,beta,gamma,inversa)
     return homog_transxyz(dx, dy, dz) @ rot4x4
 
-def nuev_coord_trans(alpha, beta, gamma, inversa, x, y, z, dx, dy, dz):
-    coord = homog_transform(alpha, beta, gamma, inversa, dx, dy, dz) @ np.array([x,y,z,0])
-    return coord[0:3]
 
 
 def homog_transform_inverse(matrix):
@@ -137,6 +66,43 @@ def homog_transform_inverse(matrix):
     inverse[:3,3] = -np.dot(inverse[:3,:3],inverse[:3,3]) # -R^T * d
     return inverse
 
+def new_coordinates(M, x, y, z, dx = 0, dy = 0, dz = 0):
+    """
+    Transforma punto usando una matriz de rotación y una traslación.
+    """
+    point = np.array([x, y, z])
+    offset = np.array([dx, dy, dz])
+    transformed_point = M @ point.T + offset.T
+    return transformed_point.tolist()
+
+
+def new_coordinates_vec(rotation_matrix, x_array, y_array, z_array, dx=0, dy=0, dz=0):
+    """
+    Transforma múltiples puntos usando una matriz de rotación y una traslación.
+    """
+    # Apilar coordenadas en una matriz (3, n)
+    points = np.stack([x_array, y_array, z_array])
+    
+    # Aplicar rotación: (3x3) @ (3xn) -> (3xn)
+    rotated = np.dot(rotation_matrix, points)
+    
+    # Aplicar traslación (broadcasting automático)
+    translated = rotated + np.vstack([dx, dy, dz])
+    
+    # Devolver como tres arrays separados
+    return translated[0, :], translated[1, :], translated[2, :]
+
+def new_coord_full(x, y, z, alpha, beta, gamma,inversa = False, dx = 0, dy = 0, dz = 0):
+    """
+    Transforma punto usando una angulos y una traslación.
+    """
+    matriz = xyz_rotation_matrix(alpha, beta, gamma, inversa)
+    punto = np.array([x, y, z])
+    p_org = np.array([dx, dy, dz])
+    M = matriz @ punto + p_org
+    return M
+
+
 def foot_coordinate(x, y, z, thetax, thetay):
     cx, sx = np.cos(thetax), np.sin(thetax)
     cy, sy = np.cos(thetay), np.sin(thetay)
@@ -150,15 +116,25 @@ def foot_coordinate(x, y, z, thetax, thetay):
     point = np.array([x, y, z])
     return (M @ point).tolist()
 
+
 if __name__ == "__main__":
     from math import pi
+    import time
+    
     alpha = pi/2
     beta = pi/2
     gamma = pi/2
-    dx, dy, dz = 1, 2, 3
-    x,y,z = 7, 8, 9
+    #dx, dy, dz = 1, 1, 1
+    dx = dy = dz = np.array([1,1,1,1])
+    x=y=z = np.array([1,1, 1,5])
     
-    M = nuev_coord_trans(alpha,beta,gamma, False, x,y,z, dx,dy,dz)
+    ini = time.time()
+    mate = xyz_rotation_matrix(alpha, beta, gamma)
+    M = new_coordinates_vec(mate, x,y,z, dx,dy,dz)
+    fin = time.time()
+    
     print(M)
+    print(dx-x)
+    #print(fin-ini)
 
     
