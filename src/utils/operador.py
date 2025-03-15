@@ -72,7 +72,7 @@ def new_coordinates(M, x, y, z, dx = 0, dy = 0, dz = 0):
     """
     point = np.array([x, y, z])
     offset = np.array([dx, dy, dz])
-    transformed_point = M @ point.T + offset.T
+    transformed_point = M @ point + offset
     return transformed_point.tolist()
 
 
@@ -92,16 +92,15 @@ def new_coordinates_vec(rotation_matrix, x_array, y_array, z_array, dx=0, dy=0, 
     # Devolver como tres arrays separados
     return translated[0, :], translated[1, :], translated[2, :]
 
-def new_coord_full(x, y, z, alpha, beta, gamma,inversa = False, dx = 0, dy = 0, dz = 0):
+def new_coord_full(x, y, z, alpha, beta, gamma,inversa = False, dx= 0, dy = 0, dz = 0):
     """
     Transforma punto usando una angulos y una traslación.
     """
     matriz = xyz_rotation_matrix(alpha, beta, gamma, inversa)
-    punto = np.array([x, y, z])
-    p_org = np.array([dx, dy, dz])
-    M = matriz @ punto + p_org
-    return M
-
+    punto = np.vstack([x, y, z])
+    p_org = np.vstack([dx, dy, dz])
+    traslado = matriz @ punto + p_org
+    return traslado[0], traslado[1], traslado[2]
 
 def foot_coordinate(x, y, z, thetax, thetay):
     cx, sx = np.cos(thetax), np.sin(thetax)
@@ -124,17 +123,17 @@ if __name__ == "__main__":
     alpha = pi/2
     beta = pi/2
     gamma = pi/2
-    #dx, dy, dz = 1, 1, 1
-    dx = dy = dz = np.array([1,1,1,1])
-    x=y=z = np.array([1,1, 1,5])
+    dx, dy, dz = 1, 1, 1
+    #dx = dy = dz = np.array([0,0,0,0])
+    x=y=z = 1
+    #x=y=z = np.array([1,1, 1,1])
     
     ini = time.time()
-    mate = xyz_rotation_matrix(alpha, beta, gamma)
-    M = new_coordinates_vec(mate, x,y,z, dx,dy,dz)
+    mate = xyz_rotation_matrix(-alpha, -beta, -gamma, True)
+    M = new_coord_full(x,y,z,-alpha,-beta,-gamma,True,dx, dy, dz)
     fin = time.time()
-    
-    print(M)
-    print(dx-x)
+    #print(mate)    
+    print(M[1])
     #print(fin-ini)
 
     

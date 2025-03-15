@@ -8,7 +8,7 @@ import src.config.coordenadas as coor
 from src.utils.cinematica import FK
 from src.animation.display import display_rotate
 
-pygame.init()
+#pygame.init()
 screen = pygame.display.set_mode((600, 600)) 
 
 class SpotAnime:
