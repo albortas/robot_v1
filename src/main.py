@@ -26,93 +26,35 @@ SpotAnim = SpotAnime()
 pygame.joystick.init()
 joystick = pygame.joystick.Joystick(0)
 joystick.init()
-
-""" XBOX One controller settings """
-""" use Essai_Joystick_01.py utility to find out the right parameters """
-
-nj = 6 # Number of joysticks
-nb = 10 # number of buttons
-
-but_walk = 7
-but_sit = 2
-but_lie = 3
-but_twist = 1
-but_pee = 0
-but_move = 4
-but_anim = 5
-
-pos_frontrear = 4
-pos_leftright = 3
-pos_turn = 0    
-pos_rightpaw = 5
-pos_leftpaw = 2
-
-joypos =np.zeros(6) #xbox one controller has 6 analog inputs
-joybut = np.zeros(10) #xbox one controller has 10 buttons
-
-continuer = True
 clock = pygame.time.Clock()
-t = 0 #Initializing timing/clock
-tstart = 1 #End of start sequence
-tstop = 1000 #Start of stop sequence by default
-tstep = 0.01 #Timing/clock step
-tstep1 = tstep
 
-distance =[] #distance to support polygon edge
-balance =[] #balance status (True or False)
-timing = [] #timing to plot distance
+def inicio():    
 
+    """theta_spot = [x angle ground, y angle ground, z angle body in space, x angle body, y angle body, z angle body] """
 
-Free = True #Spot is ready to receive new command
-sitting = False 
-walking = False #walking sequence activation
-lying = False 
-twisting = False
-pawing = False
-shifting = False
-peeing = False
-stop = False # walking stop sequence activation
-lock = False # locking key/button stroke as a "rebound filter"
-lockmouse = False
-mouseclick = False
+    #theta xyz of ground then theta xyz of frame/body
+    pos_init = [-x_offset,track,-b_height,-x_offset,-track,-b_height,-x_offset,-track,-b_height,-x_offset,track,-b_height]
 
-walking_speed = 0
-walking_direction = 0
-steeering = 1e6
-module = 0
-joype = -1 # Initial joysick value for peeing
-joypar = -1 # Initial joysick value for pawing right
-joypal = -1 # Initial joysick value for pawing left
+    thetarf = IK(pos_init[3], pos_init[4], pos_init[5], -1)[0]
+    thetalf = IK(pos_init[0], pos_init[1], pos_init[2], 1)[0]
+    thetarr = IK(pos_init[6], pos_init[7], pos_init[8], -1)[0]
+    thetalr = IK(pos_init[9], pos_init[10], pos_init[11], 1)[0]
 
-Tcomp = 0.02
+    CG = SpotCG.CG_calculation (thetalf,thetarf,thetarr,thetalr)
+    #Calculation of CG absolute position
+    M = xyz_rotation_matrix(theta_spot[0],theta_spot[1],theta_spot[2],False)
+    CGabs = new_coordinates(M,CG[0],CG[1],CG[2],x_spot[1],y_spot[1],z_spot[1])
+    dCG = SpotCG.CG_distance(x_spot[2:6],y_spot[2:6],z_spot[2:6],CGabs[0],CGabs[1],stance)
 
-x_spot = [0, x_offset, xlf, xrf, xrr, xlr,0,0,0]
-y_spot = [0,0, ylf+track, yrf-track, yrr-track, ylr+track,0,0,0]
-z_spot = [0,b_height,0,0,0,0,0,0,0]
+    x_spot = [0, x_offset, xlf, xrf, xrr, xlr,CG[0],CGabs[0],dCG[1]]
+    y_spot = [0,0, ylf+track, yrf-track, yrr-track, ylr+track,CG[1],CGabs[1],dCG[2]]
+    z_spot = [0,b_height,0,0,0,0,CG[2],CGabs[2],dCG[3]]
 
-"""theta_spot = [x angle ground, y angle ground, z angle body in space, x angle body, y angle body, z angle body] """
+    pos = [-x_offset,track,-b_height,-x_offset,-track,-b_height,-x_offset,-track,-b_height,-x_offset,track,-b_height,theta_spot,x_spot,y_spot,z_spot]
 
+    return pos
 
-#theta xyz of ground then theta xyz of frame/body
-pos_init = [-x_offset,track,-b_height,-x_offset,-track,-b_height,-x_offset,-track,-b_height,-x_offset,track,-b_height]
-
-thetarf = IK(pos_init[3], pos_init[4], pos_init[5], -1)[0]
-thetalf = IK(pos_init[0], pos_init[1], pos_init[2], 1)[0]
-thetarr = IK(pos_init[6], pos_init[7], pos_init[8], -1)[0]
-thetalr = IK(pos_init[9], pos_init[10], pos_init[11], 1)[0]
-
-CG = SpotCG.CG_calculation (thetalf,thetarf,thetarr,thetalr)
-#Calculation of CG absolute position
-M = xyz_rotation_matrix(theta_spot[0],theta_spot[1],theta_spot[2],False)
-CGabs = new_coordinates(M,CG[0],CG[1],CG[2],x_spot[1],y_spot[1],z_spot[1])
-dCG = SpotCG.CG_distance(x_spot[2:6],y_spot[2:6],z_spot[2:6],CGabs[0],CGabs[1],stance)
-
-x_spot = [0, x_offset, xlf, xrf, xrr, xlr,CG[0],CGabs[0],dCG[1]]
-y_spot = [0,0, ylf+track, yrf-track, yrr-track, ylr+track,CG[1],CGabs[1],dCG[2]]
-z_spot = [0,b_height,0,0,0,0,CG[2],CGabs[2],dCG[3]]
-
-pos = [-x_offset,track,-b_height,-x_offset,-track,-b_height,-x_offset,-track,-b_height,-x_offset,track,-b_height,theta_spot,x_spot,y_spot,z_spot]
-
+pos = inicio()
 
 """
 Main Loop

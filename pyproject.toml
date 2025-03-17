@@ -7,7 +7,7 @@ license = {text = "MIT"}
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.12,<3.13"  # Limita a Python 3.12.x (más seguro para compatibilidad)
+python = ">=3.13"  # Limita a Python 3.12.x (más seguro para compatibilidad)
 numpy = "^2.2.3"         # ^ = compatible releases (2.2.3 <= versión < 3.0.0)
 pygame = "^2.6.1"
 
