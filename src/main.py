@@ -135,7 +135,7 @@ while (continuer):
             cerrar = True
                        
 
-        #MINTIENDO
+        #ACOSTARSE
         if (joybut[but_lie] == 1)&(lying == False)&(libre == True): #Entrar en modo mintiendo
             lying = True
             stop = False
@@ -157,6 +157,7 @@ while (continuer):
             t=0
             cerrar = True
         
+        #CAMINAR
         if (caminando == True):  
             coef = 1.2
             #Establecer la dirección y velocidad de la marcha           
@@ -511,7 +512,8 @@ while (continuer):
             stance[3] = True
         
         
-        SpotAnim.animate(pos,t,pi/12,-135/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,caminando_speed,caminando_direction,steering,stance)
+        SpotAnim.animate(pos,t,pi/12,-135/180*pi,Angle,center_x,center_y,
+                         thetalf,thetarf,thetarr,thetalr,caminando_speed,caminando_direction,steering,stance)
         #SpotAnim.animate(pos,t,pi/2,-0/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,caminando_speed,caminando_direction,steering,stance)
         #SpotAnim.animate(pos,t,0,-0/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,caminando_speed,caminando_direction,steering,stance)
 
