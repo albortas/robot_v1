@@ -14,12 +14,10 @@ seq = [0, 0.5, 0.25, 0.75] # secuencia de tiempos para los pies
 
 
 Angle = [0, 0]
-
 center_x = steering*cos(walking_direction) #steering center x relative to body center 
 center_y = steering*sin(walking_direction) #steering center y relative to body center
 cw =1
 
-"""theta_spot = [x angle ground, y angle ground, z angle body in space, x angle body, y angle body, z angle body] """
+stance = [True, True, True, True] # True = foot on the ground, False = Foot lifted
 theta_spot = [0,0,0,0,0,0]
-theta_x = pi/12
-theta_z = - pi * (135/180)
+

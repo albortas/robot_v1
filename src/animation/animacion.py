@@ -57,20 +57,20 @@ class SpotAnime:
         self.screen.fill(color.WHITE)
         
         # Dibujar componentes
-        self.draw_floor_grid(theta_spot, thetax, thetaz, x_spot, y_spot, z_spot)
-        self.draw_xyz_frame(thetax, thetaz, x_spot, y_spot, z_spot)
-        self.draw_radius_and_direction(center_x, center_y, steering, x_spot, y_spot, 
+        self.dibujar_cuadricula_piso(theta_spot, thetax, thetaz, x_spot, y_spot, z_spot)
+        self.dibujar_marco_xyz(thetax, thetaz, x_spot, y_spot, z_spot)
+        self.radio_direccion_dibujo(center_x, center_y, steering, x_spot, y_spot, 
                                       walking_speed, walking_direction, theta_spot, thetax, thetaz)
-        self.draw_legs(pos, theta_spot, thetax, thetaz, x_spot, y_spot, z_spot, 
+        self.dibujar_piernas(pos, theta_spot, thetax, thetaz, x_spot, y_spot, z_spot, 
                       thetalf, thetarf, thetarr, thetalr)
-        self.draw_body(theta_spot, thetax, thetaz, x_spot, y_spot, z_spot)
-        self.draw_sustentation_area(stance, pos, theta_spot, thetax, thetaz, x_spot, y_spot, z_spot)
-        self.draw_center_of_gravity(CGabs, dCG, x_spot, y_spot, z_spot, thetax, thetaz)
-        self.draw_debug_info(angle)
+        self.dibujar_cuerpo(theta_spot, thetax, thetaz, x_spot, y_spot, z_spot)
+        self.dibujar_area_sustentacion(stance, pos, theta_spot, thetax, thetaz, x_spot, y_spot, z_spot)
+        self.dibujar_centro_gravedad(CGabs, dCG, x_spot, y_spot, z_spot, thetax, thetaz)
+        self.dibular_info_debug(angle)
         
         pygame.display.flip()
 
-    def draw_floor_grid(self, theta_spot, thetax, thetaz, x_spot, y_spot, z_spot):
+    def dibujar_cuadricula_piso(self, theta_spot, thetax, thetaz, x_spot, y_spot, z_spot):
         """Dibuja el suelo y la cuadrícula de referencia"""
         # Suelo principal
         line = display_rotate(self, -x_spot[0], -y_spot[0], -z_spot[0],
@@ -94,7 +94,7 @@ class SpotAnime:
                                 [-500+i*100, -500+i*100], [0, 0])
             pygame.draw.lines(self.screen, color.DARK_GREY, False, line, 1)
 
-    def draw_xyz_frame(self, thetax, thetaz, x_spot, y_spot, z_spot):
+    def dibujar_marco_xyz(self, thetax, thetaz, x_spot, y_spot, z_spot):
         """Dibuja los ejes de coordenadas X, Y, Z"""
         for axis, col in zip(['X', 'Y', 'Z'], [color.RED, color.GREEN, color.BLUE]):
             line = display_rotate(self, -x_spot[0], -y_spot[0], -z_spot[0],
@@ -103,7 +103,7 @@ class SpotAnime:
                                 getattr(coor, f'z{axis}'))
             pygame.draw.lines(self.screen, col, False, line, 2)
 
-    def draw_radius_and_direction(self, center_x, center_y, steering, x_spot, y_spot, 
+    def radio_direccion_dibujo(self, center_x, center_y, steering, x_spot, y_spot, 
                                 walking_speed, walking_direction, theta_spot, thetax, thetaz):
         """Dibuja el radio de giro y dirección de movimiento"""
         # Radio de giro
@@ -135,7 +135,7 @@ class SpotAnime:
             pygame.draw.circle(self.screen, color.BLACK, lineR[0], 5)
         pygame.draw.circle(self.screen, color.DARK_CYAN, lineR[1], 5)
 
-    def draw_legs(self, pos, theta_spot, thetax, thetaz, x_spot, y_spot, z_spot, 
+    def dibujar_piernas(self, pos, theta_spot, thetax, thetaz, x_spot, y_spot, z_spot, 
                 thetalf, thetarf, thetarr, thetalr):
         """Dibuja las cuatro patas del robot usando cinemática directa"""
         legs = [
@@ -162,7 +162,7 @@ class SpotAnime:
                                 x_leg, y_leg, z_leg)
             pygame.draw.lines(self.screen, color.RED, False, line, 4)
 
-    def draw_body(self, theta_spot, thetax, thetaz, x_spot, y_spot, z_spot):
+    def dibujar_cuerpo(self, theta_spot, thetax, thetaz, x_spot, y_spot, z_spot):
         """Dibuja la estructura principal del cuerpo del robot"""
         body_points = [
             (torso.xlf, torso.ylf, torso.zlf),
@@ -183,7 +183,7 @@ class SpotAnime:
                               x_body, y_body, z_body)
         pygame.draw.lines(self.screen, color.BLUE, False, lineb, 10)
 
-    def draw_sustentation_area(self, stance, pos, theta_spot, thetax, thetaz, x_spot, y_spot, z_spot):
+    def dibujar_area_sustentacion(self, stance, pos, theta_spot, thetax, thetaz, x_spot, y_spot, z_spot):
         """Dibuja el área de sustentación (polígono de apoyo)"""
         linesus = []
         for i in range(4):
@@ -203,7 +203,7 @@ class SpotAnime:
             pygame.draw.polygon(self.screen, color.VIOLET, linesus, 0)
             pygame.draw.lines(self.screen, color.BLACK, True, linesus, 1)
 
-    def draw_center_of_gravity(self, CGabs, dCG, x_spot, y_spot, z_spot, thetax, thetaz):
+    def dibujar_centro_gravedad(self, CGabs, dCG, x_spot, y_spot, z_spot, thetax, thetaz):
         """Dibuja el centro de gravedad y su desplazamiento"""
         # Línea vertical del CG
         lineCG = display_rotate(self, -x_spot[0], -y_spot[0], -z_spot[0],
@@ -223,7 +223,7 @@ class SpotAnime:
         color_cg = color.GREEN if dCG[2] else color.RED
         pygame.draw.circle(self.screen, color_cg, lineCG[0], 3)
 
-    def draw_debug_info(self, angle):
+    def dibular_info_debug(self, angle):
         """Dibuja información de depuración (ángulos)"""
         # Ángulo de cabeceo (X)
         pygame.draw.lines(self.screen, color.BLACK, False,

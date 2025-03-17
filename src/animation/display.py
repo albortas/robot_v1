@@ -3,7 +3,7 @@ from src.utils.operador import xyz_rotation_matrix, new_coordinates
 
 conv = 0
 
-def display_rotate(self,x_spot,y_spot,z_spot,theta_spot,thetax,thetaz,xl,yl,zl):
+def display_rotate(x_spot,y_spot,z_spot,theta_spot,thetax,thetaz,xl,yl,zl):
     line = []
     Ma = np.zeros(9)
     Mb = np.zeros(9)

@@ -1,52 +1,39 @@
 import pygame
+from src.animation.animacion import SpotAnime
 
-import src.animation.animacion as animacion
-anime = animacion.SpotAnime()
-
-# pygame setup
+# Inicializar Pygame
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
-clock = pygame.time.Clock()
+screen = pygame.display.set_mode((600, 600))
+
+# Crear instancia de SpotAnime
+spot_anime = SpotAnime()
+spot_anime.screen = screen
+
+# Parámetros simulados
+pos = [0] * 16
+t = 0
+thetax = 0
+thetaz = 0
+angle = [0, 0]
+center_x = 0
+center_y = 0
+thetalf = [0, 0, 0]
+thetarf = [0, 0, 0]
+thetarr = [0, 0, 0]
+thetalr = [0, 0, 0]
+walking_speed = 0
+walking_direction = 0
+steering = 0
+stance = [True, True, True, True]
+
+# Bucle principal
 running = True
-dt = 0
-
-player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
-
-def teclado(dt):
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]:
-        player_pos.y -= 300 * dt
-    if keys[pygame.K_s]:
-        player_pos.y += 300 * dt
-    if keys[pygame.K_a]:
-        player_pos.x -= 300 * dt
-    if keys[pygame.K_d]:
-        player_pos.x += 300 * dt
-    
-    return player_pos.x, player_pos.y
-
 while running:
-    # poll for events
-    # El evento pygame.QUIT significa que el usuario hizo clic en X para cerrar su ventana
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    # Llena la pantalla con un color para borrar todo lo del último fotograma.
-    screen.fill("white")
-
-    #pygame.draw.circle(screen, "red", player_pos, 40)
-
-    #player_pos.x, player_pos.y = teclado(dt)
-    
-
-    # voltea() la pantalla para poner tu trabajo en la pantalla
-    pygame.display.flip()
-
-    # limita los FPS a 60
-    # dt es el tiempo delta en segundos desde el último fotograma,
-    # utilizado para física independiente de la velocidad de fotogramas.
-    dt = clock.tick(60) / 1000
+    # Animar el robot
+    spot_anime.dibujar_cuadricula_piso(theta_spot, thetax, thetaz, x_spot, y_spot, z_spot)
 
 pygame.quit()
-
