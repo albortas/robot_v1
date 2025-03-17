@@ -11,6 +11,7 @@ from config.puntos_torso import *
 from config.dimensiones import L1, L2, Lb, d
 from config.parametros_caminar import *
 from utils.operador import xyz_rotation_matrix, new_coordinates
+from control.control import caminar
 from motion.move import moving
 from utils.cinematica import IK, FK
 from src.motion.ActualizarPosicion import ActualizarPosicion
@@ -28,63 +29,65 @@ joystick = pygame.joystick.Joystick(0)
 joystick.init()
 clock = pygame.time.Clock()
 
-def inicio():    
+x_spot = [0, x_offset, xlf, xrf, xrr, xlr,0,0,0]
+y_spot = [0,0, ylf+track, yrf-track, yrr-track, ylr+track,0,0,0]
+z_spot = [0,b_height,0,0,0,0,0,0,0]
 
-    """theta_spot = [x angle ground, y angle ground, z angle body in space, x angle body, y angle body, z angle body] """
+"""theta_spot = [x angle ground, y angle ground, z angle body in space, x angle body, y angle body, z angle body] """
 
-    #theta xyz of ground then theta xyz of frame/body
-    pos_init = [-x_offset,track,-b_height,-x_offset,-track,-b_height,-x_offset,-track,-b_height,-x_offset,track,-b_height]
+#theta xyz of ground then theta xyz of frame/body
+pos_init = [-x_offset,track,-b_height,-x_offset,-track,-b_height,-x_offset,-track,-b_height,-x_offset,track,-b_height]
 
-    thetarf = IK(pos_init[3], pos_init[4], pos_init[5], -1)[0]
-    thetalf = IK(pos_init[0], pos_init[1], pos_init[2], 1)[0]
-    thetarr = IK(pos_init[6], pos_init[7], pos_init[8], -1)[0]
-    thetalr = IK(pos_init[9], pos_init[10], pos_init[11], 1)[0]
+thetarf = IK(pos_init[3], pos_init[4], pos_init[5], -1)[0]
+thetalf = IK(pos_init[0], pos_init[1], pos_init[2], 1)[0]
+thetarr = IK(pos_init[6], pos_init[7], pos_init[8], -1)[0]
+thetalr = IK(pos_init[9], pos_init[10], pos_init[11], 1)[0]
 
-    CG = SpotCG.CG_calculation (thetalf,thetarf,thetarr,thetalr)
-    #Calculation of CG absolute position
-    M = xyz_rotation_matrix(theta_spot[0],theta_spot[1],theta_spot[2],False)
-    CGabs = new_coordinates(M,CG[0],CG[1],CG[2],x_spot[1],y_spot[1],z_spot[1])
-    dCG = SpotCG.CG_distance(x_spot[2:6],y_spot[2:6],z_spot[2:6],CGabs[0],CGabs[1],stance)
+CG = SpotCG.CG_calculation (thetalf,thetarf,thetarr,thetalr)
+#Calculation of CG absolute position
+M = xyz_rotation_matrix(theta_spot[0],theta_spot[1],theta_spot[2],False)
+CGabs = new_coordinates(M,CG[0],CG[1],CG[2],x_spot[1],y_spot[1],z_spot[1])
+dCG = SpotCG.CG_distance(x_spot[2:6],y_spot[2:6],z_spot[2:6],CGabs[0],CGabs[1],stance)
 
-    x_spot = [0, x_offset, xlf, xrf, xrr, xlr,CG[0],CGabs[0],dCG[1]]
-    y_spot = [0,0, ylf+track, yrf-track, yrr-track, ylr+track,CG[1],CGabs[1],dCG[2]]
-    z_spot = [0,b_height,0,0,0,0,CG[2],CGabs[2],dCG[3]]
+x_spot = [0, x_offset, xlf, xrf, xrr, xlr,CG[0],CGabs[0],dCG[1]]
+y_spot = [0,0, ylf+track, yrf-track, yrr-track, ylr+track,CG[1],CGabs[1],dCG[2]]
+z_spot = [0,b_height,0,0,0,0,CG[2],CGabs[2],dCG[3]]
 
-    pos = [-x_offset,track,-b_height,-x_offset,-track,-b_height,-x_offset,-track,-b_height,-x_offset,track,-b_height,theta_spot,x_spot,y_spot,z_spot]
+pos = [-x_offset,track,-b_height,-x_offset,-track,-b_height,-x_offset,-track,-b_height,-x_offset,track,-b_height,theta_spot,x_spot,y_spot,z_spot]
 
-    return pos
 
-pos = inicio()
+
 
 """
 Main Loop
 """
+
 while (continuer):
         clock.tick(50)     
         
         for event in pygame.event.get(): # User did something.
-            if event.type == pygame.QUIT: # If user clicked close window.
+            if event.type == pygame.QUIT: # Si el usuario hace clic en cerrar ventana.
                 continuer = False     
             if event.type == pygame.MOUSEBUTTONDOWN: 
                 mouseclick = True
             else:
                 mouseclick = False
                 
-        for i in range (0,nj): #read analog joystick position
+        for i in range (0,nj): #leer la posición del joystick analógico
             joypos[i] = joystick.get_axis(i)                        
-        for i in range (0,nb):  #read buttons
+        for i in range (0,nb):  #botones de lectura
             joybut[i] = joystick.get_button(i)
-        joyhat = joystick.get_hat(0)  #read hat  
+        joyhat = joystick.get_hat(0)  # read hat  
         
-        """Animation"""
+        """Animacion"""
         
-        if (joybut[but_walk] == 0)&(joybut[but_pee] == 0)&(joybut[but_twist] == 0)&(joybut[but_sit] == 0)&(joybut[but_lie] == 0)&(joybut[but_anim] == 0)&(joybut[but_move] == 0)&(lock == True):
-            lock = False
+        if (joybut[but_walk] == 0)&(joybut[but_pee] == 0)&(joybut[but_twist] == 0)&(joybut[but_sit] == 0)&(joybut[but_lie] == 0)&(joybut[but_anim] == 0)&(joybut[but_move] == 0)&(cerrar == True):
+            cerrar = False
         
-        #WALKING        
-        if (joybut[but_walk] == 1)&(walking == True)&(stop == False)&(lock == False): #Quit walk mode
+        #CAMINANDO
+        if (joybut[but_walk] == 1)&(caminando == True)&(stop == False)&(cerrar == False): #Salir del modo caminar
             stop = True
-            lock = True
+            cerrar = True
             if (abs(t-int(t))<=tstep):
                 tstop = int(t)
             else:
@@ -93,81 +96,79 @@ while (continuer):
             if (t==0):
                 tstop = 1
         
-        if (joybut[but_walk] == 1)&(walking == False)&(Free == True): #Enter in walk mode
-            walking = True
+        if (joybut[but_walk] == 1)&(caminando == False)&(libre == True): #Entrar en modo caminar
+            caminando = True
             stop = False
-            Free = False
+            libre = False
             t=0
             tstart = 1
             tstop = 1000
-            lock = True
+            cerrar = True
             trec = int(t)
             
 
-         #SITTING and GIVING PAW
-        if (joybut[but_sit] == 1)&(sitting == False)&(Free == True): #Enter in sitting mode
+         #SENTADO Y DANDO LA PATA
+        if (joybut[but_sit] == 1)&(sitting == False)&(libre == True): #Entrar en modo sentado
             sitting = True
             stop = False
-            Free = False
+            libre = False
             t=0
-            lock = True
+            cerrar = True
             
 
-        if (joybut[but_sit] == 1)&(sitting == True)&(stop == False)&(lock == False): #Quit sitting mode
+        if (joybut[but_sit] == 1)&(sitting == True)&(stop == False)&(cerrar == False): #Salir del modo sentado
             stop = True
-            lock = True
+            cerrar = True
 
 
-        #SHIFTING and PEEING
-        if (joybut[but_pee] == 1)&(shifting == False)&(Free == True): #Enter in sitting mode
+        #CAMBIAR DE PESO Y ORINAR
+        if (joybut[but_pee] == 1)&(shifting == False)&(libre == True): #Entrar en modo animacion orinar
             shifting = True
             stop = False
-            Free = False
+            libre = False
             t=0
-            lock = True
+            cerrar = True
         
             
-        if (joybut[but_pee] == 1)&(shifting == True)&(stop == False)&(lock == False): #Quit sitting mode
+        if (joybut[but_pee] == 1)&(shifting == True)&(stop == False)&(cerrar == False): #Salir del modo animacion orinar
             stop = True
-            lock = True
+            cerrar = True
                        
 
-        #LYING
-        if (joybut[but_lie] == 1)&(lying == False)&(Free == True): #Enter in sitting mode
+        #MINTIENDO
+        if (joybut[but_lie] == 1)&(lying == False)&(libre == True): #Entrar en modo mintiendo
             lying = True
             stop = False
-            Free = False
+            libre = False
             t=0
-            lock = True
+            cerrar = True
             
 
-        if (joybut[but_lie] == 1)&(lying== True)&(stop == False)&(lock == False): #Quit sitting mode
+        if (joybut[but_lie] == 1)&(lying== True)&(stop == False)&(cerrar == False): #Salir del modo mintiendo
             stop = True
-            lock = True
+            cerrar = True
             
 
 
-        #TWISTING
-        if (joybut[but_twist] == 1)&(twisting == False)&(Free == True): #Enter in sitting mode
+        #RETORTIJÓN
+        if (joybut[but_twist] == 1)&(twisting == False)&(libre == True): #Enter in sitting mode
             twisting = True
-            Free = False
+            libre = False
             t=0
-            lock = True
+            cerrar = True
         
-        
-        
-        if (walking == True):  
+        if (caminando == True):  
             coef = 1.2
-            #set walking direction and speed            
-            #set steering radius
+            #Establecer la dirección y velocidad de la marcha           
+            #Establecer el radio de dirección
             
-            if (joybut[but_move] == True)&(tstep > 0)&(lock == False):
+            if (joybut[but_move] == True)&(tstep > 0)&(cerrar == False):
                 tstep = 0
-                lock = True
-              
-            if (joybut[but_move] == True)&(tstep == 0)&(lock == False):
+                cerrar = True
+                
+            if (joybut[but_move] == True)&(tstep == 0)&(cerrar == False):
                 tstep = tstep1
-                lock = True    
+                cerrar = True    
                 
             print (tstep)    
                 
@@ -176,20 +177,20 @@ while (continuer):
                 trec = int(t)+1
                 
                 module_old = module
-                walking_direction_old = walking_direction
+                caminando_direction_old = caminando_direction
                 steering_old = steering
                 
-                x_old = module_old*cos(walking_direction_old)
-                y_old = module_old*sin(walking_direction_old)
+                x_old = module_old*cos(caminando_direction_old)
+                y_old = module_old*sin(caminando_direction_old)
                 
-                #update request
+                #Solicitud de actualización
                 module = sqrt(joypos[pos_leftright]**2 + joypos[pos_frontrear]**2)
-                walking_direction = (atan2(-joypos[pos_leftright],-joypos[pos_frontrear])%(2*pi)+pi/2)%(2*pi)
+                caminando_direction = (atan2(-joypos[pos_leftright],-joypos[pos_frontrear])%(2*pi)+pi/2)%(2*pi)
                 
-                x_new = module*cos(walking_direction)
-                y_new = module*sin(walking_direction)
+                x_new = module*cos(caminando_direction)
+                y_new = module*sin(caminando_direction)
                                 
-                #steering update                
+                #Actualización de la dirección          
                 if (abs(joypos[pos_turn]) < 0.2):
                     cw = 1
                     if (steering<2000):
@@ -213,18 +214,18 @@ while (continuer):
                     x_new = x_old+ (x_new-x_old)/gap*0.01
                     y_new = y_old+ (y_new-y_old)/gap*0.01
                     module = sqrt(x_new**2+y_new**2)
-                    walking_direction = atan2(y_new,x_new)
-                                                       
-                #reduces speed sideways and backwards  
+                    caminando_direction = atan2(y_new,x_new)
+                                                        
+                #Reduce la velocidad lateralmente y hacia atrás
                 min_h_amp = h_amp*(1/2e6*steering+1/2)               
-                xa = 1+cos(walking_direction-pi/2) 
-                walking_speed = min (1, module) * min(h_amp,min_h_amp) * (1/8*xa**2+1/8*xa+1/4)                
+                xa = 1+cos(caminando_direction-pi/2) 
+                caminando_speed = min (1, module) * min(h_amp,min_h_amp) * (1/8*xa**2+1/8*xa+1/4)                
                 
                 
             if ((abs(joypos[pos_leftright])<0.2)&(abs(joypos[pos_frontrear])<0.2))&(stop == False):  
                 t=t+tstep                
                 module = max (0, module-0.01)
-                walking_speed = module* h_amp * ((1+cos(walking_direction-pi/2))/2*0.75+0.25)
+                caminando_speed = module* h_amp * ((1+cos(caminando_direction-pi/2))/2*0.75+0.25)
                 if (steering<2000):
                     steering = min(1e6,steering*coef) 
                 else:
@@ -234,26 +235,26 @@ while (continuer):
                     t=trec
 
             """ 
-            If you have an IMU that measures Angle[0] and Angle [1] 
-            values can be transferred to theta_spot
+            Si tiene una IMU que mide los valores de Ángulo[0] y Ángulo[1],
+            se pueden transferir a theta_spot.
             """                
-            theta_spot[3] = Angle [0] # angle around x axis
-            theta_spot[4] = Angle [1] # angle around y axis
-            theta_spot[0] = Angle [0] # angle around x axis
-            theta_spot[1] = Angle [1] # angle around y axis
+            theta_spot[3] = Angle [0] # Angulo alrededor del eje x
+            theta_spot[4] = Angle [1] # Angulo alrededor del eje y
+            theta_spot[0] = Angle [0] # Angulo alrededor del eje x
+            theta_spot[1] = Angle [1] # Angulo alrededor del eje y
                         
             if (t< tstart):           
-                caminar = ActualizarPosicion(x_offset,steering,walking_direction,cw,walking_speed,t,tstep,theta_spot,x_spot,y_spot,z_spot,'start')
+                caminar = ActualizarPosicion(x_offset,steering,caminando_direction,cw,caminando_speed,t,tstep,theta_spot,x_spot,y_spot,z_spot,'start')
                 pos = caminar.actualizar_posicion()
             else:
                 if (t<tstop):
-                    caminar = ActualizarPosicion(x_offset,steering,walking_direction,cw,walking_speed,t,tstep,theta_spot,x_spot,y_spot,z_spot,'walk')
+                    caminar = ActualizarPosicion(x_offset,steering,caminando_direction,cw,caminando_speed,t,tstep,theta_spot,x_spot,y_spot,z_spot,'walk')
                     pos = caminar.actualizar_posicion()                    
                 else:
-                    caminar = ActualizarPosicion(x_offset,steering,walking_direction,cw,walking_speed,t,tstep,theta_spot,x_spot,y_spot,z_spot,'stop')
+                    caminar = ActualizarPosicion(x_offset,steering,caminando_direction,cw,caminando_speed,t,tstep,theta_spot,x_spot,y_spot,z_spot,'stop')
                     pos = caminar.actualizar_posicion()
                         
-                           
+                            
             theta_spot = pos[12]
             x_spot = pos[13]
             y_spot = pos[14]                 
@@ -262,8 +263,11 @@ while (continuer):
             
             if (t>(tstop+1-tstep)):
                 stop = False
-                walking = False
-                Free = True
+                caminando = False
+                libre = True
+        
+                
+        
 
         if (sitting == True):
             alpha_sitting = -30/180*pi 
@@ -272,7 +276,7 @@ while (continuer):
             
             x_end_sitting = xlr- L2 + L1*cos(pi/3) + Lb/2*cos(-alpha_sitting) - d*sin (-alpha_sitting)
             z_end_sitting = L1*sin(pi/3)+ Lb/2*sin(-alpha_sitting) + d*cos(-alpha_sitting)
-            start_frame_pos = [0,0,0,x_offset,0,b_height] # x,y,z rotations then translations
+            start_frame_pos = [0,0,0,x_offset,0,b_height] # rotaciones x,y,z y luego traslaciones
 
             #end_frame_pos = [0,0,0,x_offset,0,b_height-20] # x,y,z rotations then translations
             end_frame_pos = [0,alpha_sitting,0, x_end_sitting,0,z_end_sitting] # x,y,z rotations then translations
@@ -281,7 +285,7 @@ while (continuer):
             if (t==1)&(pawing == False):
                 pos_sit_init = pos
             
-            if (t == 1): #pawing is possible
+            if (t == 1): # Es posible manosear
                 if (pawing == True):
                     #print (pos_sit_init[3],pos_sit_init[5])
                     pos[3] = pos_sit_init[3]+ (L_paw*cos(alpha_pawing)-pos_sit_init[3])*(joypar+1)/2
@@ -292,7 +296,7 @@ while (continuer):
                     
                     thetarf = IK(pos[3], pos[4], pos[5], -1)[0]
                     thetalf = IK(pos[0], pos[1], pos[2], -1)[0]
-                    #update of right front leg absolute position
+                    #Actualización de la posición absoluta de la pata delantera derecha
                     legrf = FK(thetarf,-1) 
                     leglf = FK(thetalf,-1) 
                     xlegrf =xrf+pos[3]
@@ -357,7 +361,7 @@ while (continuer):
                     t= 0
                     stop  = False
                     sitting = False
-                    Free = True
+                    libre = True
 
         if (shifting == True):                        
             x_end_shifting = ra_longi
@@ -369,7 +373,7 @@ while (continuer):
             if (t==1)&(peeing == False):
                 pos_shift_init = pos
             
-            if (t == 1): #lifting left hid leg is possible 
+            if (t == 1): # Es posible levantar la pierna izquierda.
                 
                 if (peeing == True): 
                     pos[9] = pos_shift_init[9]+ (0-pos_shift_init[9])*(joype+1)/2
@@ -377,7 +381,7 @@ while (continuer):
                     pos[11] = pos_shift_init[11]+ (-20-pos_shift_init[11])*(joype+1)/2
                     
                     thetalr = IK(pos[9], pos[10], pos[11], 1)[0]
-                    #update of left hind leg absolute position
+                    # Actualización de la posición absoluta de la pata trasera izquierda
                     leglr = FK(thetalr,1)                    
                     xleglr =xlr+pos[9]
                     yleglr =ylr+pos[10]
@@ -405,9 +409,6 @@ while (continuer):
                 else:
                     peeing = False
                 
-                    
-                    
-
             if (stop == False):
                 t=t+4*tstep
                 if (t>=1):
@@ -418,7 +419,7 @@ while (continuer):
                     t= 0
                     stop  = False
                     shifting = False
-                    Free = True
+                    libre = True
 
         
         if (lying == True):
@@ -438,7 +439,7 @@ while (continuer):
                     t= 0
                     stop  = False
                     lying = False
-                    Free = True
+                    libre = True
         
         if (twisting == True):
             x_angle_twisting = 0/180*pi
@@ -450,7 +451,7 @@ while (continuer):
             if (t>=1):
                t=1
                twisting = False
-               Free = True
+               libre = True
                 
             if (t<0.25):
                 end_frame_pos = [x_angle_twisting,y_angle_twisting,z_angle_twisting, x_offset,0,b_height] # x,y,z rotations then translations
@@ -466,11 +467,11 @@ while (continuer):
                 pos = moving ((t-0.75)*4, end_frame_pos,start_frame_pos, pos)     
              
             
-        xc = steering* cos(walking_direction)
-        yc = steering* sin(walking_direction)
+        xc = steering* cos(caminando_direction)
+        yc = steering* sin(caminando_direction)
             
-        center_x = x_spot[0]+(xc*cos(theta_spot[2])-yc*sin(theta_spot[2])) #absolute center x position
-        center_y = y_spot[0]+(xc*sin(theta_spot[2])+yc*cos(theta_spot[2])) #absolute center y position
+        center_x = x_spot[0]+(xc*cos(theta_spot[2])-yc*sin(theta_spot[2])) # Posición x del centro absoluto
+        center_y = y_spot[0]+(xc*sin(theta_spot[2])+yc*cos(theta_spot[2])) # Posición y del centro absoluto
 
 
         
@@ -482,15 +483,17 @@ while (continuer):
         """
         ************************************************************************************************
         
-        thetalf, thetarf, thetarr, thetalr are the sets of angles thant can be sent to the servos 
-        to generate the motion of Spotmicro
+        thetalf, theatre, theatre, theatre son los conjuntos de ángulos que se pueden enviar a los servos
+        para generar el movimiento de Spotmicro
         
-        This is where you can place the call to the servo moving function
-        Moving function depends on the type of servos and drivers that are used to control them 
-        -I2c shields, PWM generators
-        -Servos maximum race 180°, 270°, 360°...
+        Aquí es donde se puede realizar la llamada a la función de movimiento
+        del servo. La función de movimiento depende del tipo de servos
+        y de los controladores que se utilizan para controlarlos.
+        
+        -Shields I2c, generadores PWM
+        -Carrera máxima de servos 180°, 270°, 360°...
            
-        Servos zero positions and races must be tuned 
+        Las posiciones cero y las carreras de los servos deben ajustarse
         
         ************************************************************************************************ 
         """
@@ -508,17 +511,17 @@ while (continuer):
             stance[3] = True
         
         
-        SpotAnim.animate(pos,t,pi/12,-135/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,walking_speed,walking_direction,steering,stance)
-        #SpotAnim.animate(pos,t,pi/2,-0/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,walking_speed,walking_direction,steering,stance)
-        #SpotAnim.animate(pos,t,0,-0/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,walking_speed,walking_direction,steering,stance)
+        SpotAnim.animate(pos,t,pi/12,-135/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,caminando_speed,caminando_direction,steering,stance)
+        #SpotAnim.animate(pos,t,pi/2,-0/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,caminando_speed,caminando_direction,steering,stance)
+        #SpotAnim.animate(pos,t,0,-0/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,caminando_speed,caminando_direction,steering,stance)
 
         pygame.display.flip()
-        if (Free == True):
+        if (libre == True):
             sleep(0.1)
         
-        """ CG update """
+        """ Actualizar CG """
         CG = SpotCG.CG_calculation (thetalf,thetarf,thetarr,thetalr)
-        #Calculation of CG absolute position
+        # Cálculo de la posición absoluta del CG
         M = xyz_rotation_matrix(theta_spot[0],theta_spot[1],theta_spot[2],False)
         CGabs = new_coordinates(M,CG[0],CG[1],CG[2],x_spot[1],y_spot[1],z_spot[1])
         dCG = SpotCG.CG_distance(x_spot[2:6],y_spot[2:6],z_spot[2:6],CGabs[0],CGabs[1],stance)
@@ -540,5 +543,7 @@ while (continuer):
         timing.append(t) 
                                           
 pygame.quit()
+
+
 
             

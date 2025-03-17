@@ -59,21 +59,21 @@ balance =[] #balance status (True or False)
 timing = [] #timing to plot distance
 
 
-Free = True #Spot is ready to receive new command
+libre = True #Spot is ready to receive new command
 sitting = False 
-walking = False #walking sequence activation
+caminando = False #walking sequence activation
 lying = False 
 twisting = False
 pawing = False
 shifting = False
 peeing = False
 stop = False # walking stop sequence activation
-lock = False # locking key/button stroke as a "rebound filter"
+cerrar = False # locking key/button stroke as a "rebound filter"
 lockmouse = False
 mouseclick = False
 
-walking_speed = 0
-walking_direction = 0
+caminando_speed = 0
+caminando_direction = 0
 steeering = 1e6
 module = 0
 joype = -1 # Initial joysick value for peeing
@@ -82,7 +82,4 @@ joypal = -1 # Initial joysick value for pawing left
 
 Tcomp = 0.02
 
-x_spot = [0, x_offset, xlf, xrf, xrr, xlr,0,0,0]
-y_spot = [0,0, ylf+track, yrf-track, yrr-track, ylr+track,0,0,0]
-z_spot = [0,b_height,0,0,0,0,0,0,0]
 
