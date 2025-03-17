@@ -30,7 +30,7 @@ theta_spot = [0,0,0,0,0,0]
 nj = 6 # Number of joysticks
 nb = 10 # number of buttons
 
-but_walk = 7
+but_walk = 9
 but_sit = 2
 but_lie = 3
 but_twist = 1

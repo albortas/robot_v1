@@ -75,7 +75,7 @@ while (continuer):
                 
         for i in range (0,nj): #leer la posición del joystick analógico
             joypos[i] = joystick.get_axis(i)                        
-        for i in range (0,nb):  #botones de lectura
+        for i in range (nb):  #botones de lectura
             joybut[i] = joystick.get_button(i)
         joyhat = joystick.get_hat(0)  # read hat  
         

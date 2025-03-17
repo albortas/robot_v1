@@ -196,7 +196,7 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode((600, 600))
     pygame.display.set_caption("SPOTMICRO")
-    pygame.joystick.init()
+    pygame.joystick.init() # Inicializar el modulo del joystick
     joystick = pygame.joystick.Joystick(0)
     joystick.init()
     clock = pygame.time.Clock()
