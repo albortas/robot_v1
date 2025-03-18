@@ -9,7 +9,7 @@ from motion.move import moving
 from utils.cinematica import IK, FK
 from src.motion.ActualizarPosicion import ActualizarPosicion
 from centro_gravedad.centro_g import SpotCG
-from animation.animation import SpotAnime
+from animation.animacion import SpotAnime
 
 SpotCG = SpotCG()
 SpotAnime = SpotAnime()
@@ -62,8 +62,10 @@ class SpotMicro:
         
         return pos
 
-    def handle_joystick_events(self, joypos, joybut):
+    def handle_joystick_events(self, joypos, joybut): 
         """Maneja los eventos del joystick."""
+        if joybut[but_walk] == 0:
+            self.toggle_lock()
         if joybut[but_walk] == 1:
             self.toggle_walking()
         if joybut[but_sit] == 1:
@@ -74,6 +76,10 @@ class SpotMicro:
             self.toggle_lying()
         if joybut[but_twist] == 1:
             self.toggle_twisting()
+            
+    def toggle_lock(self):
+        """Controla el modo bloqueo"""
+        pass
 
     def toggle_walking(self):
         """Controla el modo de caminar."""
@@ -128,6 +134,7 @@ class SpotMicro:
             direction = atan2(-joypos[pos_leftright], -joypos[pos_frontrear])
             # Actualizar posición y dirección
             self.pos = self.update_position(module, direction)
+            
 
     def update_position(self, module, direction):
         """Actualiza la posición del robot mientras camina."""
@@ -181,7 +188,7 @@ class SpotMicro:
         for i in range(4):
             if self.pos[15][i + 2] < 0.01:
                 stance[i] = True
-        SpotAnime.animate(self.pos, self.t, pi / 12, -135 / 180 * pi, Angle, center_x, center_y,
+        SpotAnime.animate(self.pos, self.t, Angle, center_x, center_y,
                          thetalf, thetarf, thetarr, thetalr, caminando_speed, caminando_direction, steering, stance)
 
     def update_cg(self):
@@ -193,15 +200,17 @@ class SpotMicro:
 
 
 def main():
+    
     pygame.init()
-    screen = pygame.display.set_mode((600, 600))
-    pygame.display.set_caption("SPOTMICRO")
+    #screen = pygame.display.set_mode((600, 600))
+    pygame.display.set_caption("ROBOT")
     pygame.joystick.init() # Inicializar el modulo del joystick
     joystick = pygame.joystick.Joystick(0)
     joystick.init()
     clock = pygame.time.Clock()
 
     spot_micro = SpotMicro()
+    
     running = True
 
     while running:
@@ -217,14 +226,14 @@ def main():
 
         if spot_micro.caminando:
             spot_micro.walk(joypos)
-        """ elif spot_micro.sitting:
-            spot_micro.sit()
-        elif spot_micro.shifting:
-            spot_micro.shift_weight()
-        elif spot_micro.lying:
-            spot_micro.lie_down()
-        elif spot_micro.twisting:
-            spot_micro.twist() """
+        #elif spot_micro.sitting:
+        #    spot_micro.sit()
+        #elif spot_micro.shifting:
+        #    spot_micro.shift_weight()
+        #elif spot_micro.lying:
+        #    spot_micro.lie_down()
+        #elif spot_micro.twisting:
+        #    spot_micro.twist()
 
         spot_micro.animate()
         spot_micro.update_cg()

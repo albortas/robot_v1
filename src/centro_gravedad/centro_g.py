@@ -33,6 +33,7 @@ class SpotCG:
         return (xcg,ycg,zcg)
     
     
+    
     def CG_distance (self,x_legs,y_legs,z_legs,xcg,ycg,stance):
         
         #line equation c * x + s * y - p  = 0

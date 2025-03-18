@@ -73,7 +73,7 @@ while (continuer):
             else:
                 mouseclick = False
                 
-        for i in range (0,nj): #leer la posición del joystick analógico
+        for i in range (nj): #leer la posición del joystick analógico
             joypos[i] = joystick.get_axis(i)                        
         for i in range (nb):  #botones de lectura
             joybut[i] = joystick.get_button(i)

@@ -1,5 +1,12 @@
 import numpy as np
 
+# Matriz de proyecion
+def matriz_2d():
+    Mp = np.array([ [1,0,0],
+                    [0,1,0],
+                    [0,0,0]])
+    return Mp
+
 def xyz_rotation_matrix(thetax, thetay, thetaz, inverse = False):
     cx, sx = np.cos(thetax), np.sin(thetax)
     cy, sy = np.cos(thetay), np.sin(thetay)
@@ -100,7 +107,8 @@ def new_coord_full(x, y, z, alpha, beta, gamma,inversa = False, dx= 0, dy = 0, d
     punto = np.vstack([x, y, z])
     p_org = np.vstack([dx, dy, dz])
     traslado = matriz @ punto + p_org
-    return traslado[0], traslado[1], traslado[2]
+    gg = traslado[0], traslado[1], traslado[2]
+    return traslado
 
 def foot_coordinate(x, y, z, thetax, thetay):
     cx, sx = np.cos(thetax), np.sin(thetax)
@@ -118,22 +126,22 @@ def foot_coordinate(x, y, z, thetax, thetay):
 
 if __name__ == "__main__":
     from math import pi
-    import time
     
-    alpha = pi/2
-    beta = pi/2
-    gamma = pi/2
-    dx, dy, dz = 1, 1, 1
-    #dx = dy = dz = np.array([0,0,0,0])
-    x=y=z = 1
-    #x=y=z = np.array([1,1, 1,1])
+    alpha, beta, gamma = 0, 0, 0 
+    dx, dy, dz = 0, 0, 0
+    #dx = dy = dz = np.array([2,3,4,5])
+    #x=y=z = 1
+    x, y, z = np.array([0,0]), np.array([0,0]), np.array([0,100])
     
-    ini = time.time()
-    mate = xyz_rotation_matrix(-alpha, -beta, -gamma, True)
-    M = new_coord_full(x,y,z,-alpha,-beta,-gamma,True,dx, dy, dz)
-    fin = time.time()
+    mate = xyz_rotation_matrix(alpha, beta, gamma, True)
+    M = new_coord_full(x,y,z,alpha,beta,gamma,False,dx, dy, dz)
+    for i in range (len(x)):
+        dis = new_coordinates(mate,x[i],y[i],z[i], dx,dy, dz)
+        
+    vec = new_coordinates_vec(mate, x, y, z, dx, dy, dz)
+    
     #print(mate)    
-    print(M[1])
-    #print(fin-ini)
-
-    
+    print(M[2])
+    #print(gg)   
+    print(dis)
+    print(vec)
