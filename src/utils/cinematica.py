@@ -46,7 +46,7 @@ def FK (theta, side): #Forward Kinematics
     """
     x_shoulder1 = 0
     y_shoulder1 = d*sin(theta[0])
-    z_shoulder1 = d*cos(theta[0])
+    z_shoulder1 = -d*cos(theta[0])
     
     x_shoulder2 = 0
     y_shoulder2 =side*L0*cos(theta[0])+d*sin(theta[0])

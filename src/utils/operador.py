@@ -123,6 +123,39 @@ def foot_coordinate(x, y, z, thetax, thetay):
     point = np.array([x, y, z])
     return (M @ point).tolist()
 
+import numpy as np
+
+def rotar_display(x_spot, y_spot, z_spot, theta_spot, xl, yl, zl):
+    # Convertir xl, yl, zl en un array de forma (N, 3)
+    #thetax, thetaz = np.pi/2 , 0 # ver plano zx
+    #thetax, thetaz = np.pi , 0 # ver plano xy
+    #thetax, thetaz = np.pi/2 , -np.pi/2 # ver plano zy
+    thetax, thetaz = np.pi*(105/180) , -np.pi*(135/180) # ver plano xyz
+    escala = 1
+    coordenada_x = coordenada_y = 600/2
+    puntos = np.vstack((xl, yl, zl)).T  # Forma (N, 3)
+
+    # Matrices de rotación
+    Ma = xyz_rotation_matrix(theta_spot[3], theta_spot[4], theta_spot[2] + theta_spot[5], False)
+    Mb = xyz_rotation_matrix(theta_spot[0], theta_spot[1], 0, False)
+    M1 = xyz_rotation_matrix(thetax, 0, thetaz, True)
+
+    # Transformaciones vectorizadas
+    puntos_transformados_1 = puntos @ Ma.T + np.array([x_spot, y_spot, z_spot])
+    puntos_transformados_2 = puntos_transformados_1 @ Mb.T
+    puntos_transformados_3 = puntos_transformados_2 @ M1.T
+
+    # Proyección en 2D
+    proyeccion_2d = matriz_2d() @ puntos_transformados_3.T  # Forma (2, N)
+
+    # Escalar y trasladar
+    x = proyeccion_2d[0] * escala + coordenada_x
+    y = proyeccion_2d[1] * escala + coordenada_y
+
+    # Convertir a enteros y devolver como lista de tuplas
+    puntos_2d = np.vstack((x.astype(int), y.astype(int))).T  # Forma (N, 2)
+    return [tuple(punto) for punto in puntos_2d]
+
 
 if __name__ == "__main__":
     from math import pi

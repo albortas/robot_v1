@@ -1,15 +1,16 @@
 import pygame
 import numpy as np
 from math import pi, sin, cos, atan, atan2, sqrt
-from config.puntos_torso import *
-from config.dimensiones import L1, L2, Lb, d
-from config.parametros_caminar import tstep, x_offset, track, b_height, but_walk, but_sit, but_pee, but_lie, but_twist, pos_frontrear, pos_leftright, steering, cw, caminando_speed, caminando_direction, nb, nj, stance, Angle
-from utils.operador import xyz_rotation_matrix, new_coordinates
-from motion.move import moving
-from utils.cinematica import IK, FK
+
+from src.config.puntos_torso import *
+from src.config.dimensiones import L1, L2, Lb, d
+from src.config.parametros_caminar import tstep, x_offset, track, b_height, but_walk, but_sit, but_pee, but_lie, but_twist, pos_frontrear, pos_leftright, steering, cw, caminando_speed, caminando_direction, nb, nj, stance, Angle
+from src.utils.operador import xyz_rotation_matrix, new_coordinates
+from src.motion.move import moving
+from src.utils.cinematica import IK, FK
 from src.motion.ActualizarPosicion import ActualizarPosicion
-from centro_gravedad.centro_g import SpotCG
-from animation.animacion import SpotAnime
+from src.centro_gravedad.centro_g import SpotCG
+from src.animation.animacion import SpotAnime
 
 SpotCG = SpotCG()
 SpotAnime = SpotAnime()

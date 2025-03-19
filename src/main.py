@@ -18,7 +18,7 @@ from src.motion.ActualizarPosicion import ActualizarPosicion
 
 from centro_gravedad.centro_g import SpotCG
 SpotCG = SpotCG()
-from animation.animation import SpotAnime
+from animation.animacion import SpotAnime
 SpotAnim = SpotAnime()
 
 
@@ -512,7 +512,7 @@ while (continuer):
             stance[3] = True
         
         
-        SpotAnim.animate(pos,t,pi/12,-135/180*pi,Angle,center_x,center_y,
+        SpotAnim.animate(pos,t,Angle,center_x,center_y,
                          thetalf,thetarf,thetarr,thetalr,caminando_speed,caminando_direction,steering,stance)
         #SpotAnim.animate(pos,t,pi/2,-0/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,caminando_speed,caminando_direction,steering,stance)
         #SpotAnim.animate(pos,t,0,-0/180*pi,Angle,center_x,center_y,thetalf,thetarf,thetarr,thetalr,caminando_speed,caminando_direction,steering,stance)
